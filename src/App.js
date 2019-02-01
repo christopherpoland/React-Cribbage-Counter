@@ -94,9 +94,9 @@ class App extends Component {
       input[i][0] === 'J' ? nums.push(11) : input[i][0] === 'Q' ? nums.push(12) : input[i][0] === 'K' ? nums.push(13) : input[i][0] === 'A' ? nums.push(1) : nums.push(Number(input[i][0]));
     }
     this.setState({
-      score: this.pairCounter(input) + this.flushCounter(input) + this.heelNob(nums, input) + this.runCounter(input)[0] + this.fifteenCounter(nums,2)[0],
-      points: [this.fifteenCounter(nums, 2)[1], this.runCounter(input)[1]]
-    }); 
+      score: this.pairCounter(input) + this.flushCounter(input)[0] + this.heelNob(nums, input) + this.runCounter(input)[0] + this.fifteenCounter(nums,2)[0],
+      points: [this.fifteenCounter(nums, 2)[1], this.runCounter(input)[1], this.flushCounter(input)[1]  ]
+    });
   }
   fifteenCounter (cards, increment) {
     var score = 0, sumNumbers = 0, points = [];
@@ -122,6 +122,7 @@ class App extends Component {
         }
         if (sumNumbers - cards[j] - cards[k] === 15) { //Counts combos of 3 cards
           score += increment;
+          points.push(this.state.cards.slice(0,j).concat(this.state.cards.slice(j+1,k).concat(this.state.cards.slice(k+1))),increment)
 
         }
       }
@@ -173,7 +174,7 @@ class App extends Component {
         else if (counter < 2) { //Non run numbers without a run already (reset basically)
           counter = 0;
           pairMult = 1;
-          //points = [];
+          points = [];
         }
         else { //If a run has occured, breaks off function to avoid doubles not in run
           break;
@@ -183,29 +184,32 @@ class App extends Component {
       }
     if (counter >= 2) { //Counts run
       score += pairMult * (counter + 1);
+      return [score, [points,score]];
     }
-    return [score, [points,score]];
+    return [0,null];
   } //runCounter
   flushCounter (input) { //Counts flushes
     var suits = ["♣","♦","♥","♠"], score = 0;
-    for(var i = 0; i < 4; i++) {
+    for(var i = 0; i < 4; i++) { //iterates through each suit
       var counter = 0;
-      for(var j = 0; j < 4; j++) {
-        if(input[j][1] === suits[i]) {
+      for (var j = 0; j < 4; j++) { //iterates through hand cards and adds to counter
+        if (input[j][1] === suits[i]) {
           counter += 1;
         }
       }
-      if (counter >= 4 && input[4][1] === suits[i]) {
+      if (counter >= 4 && input[4][1] === suits[i]) { //if a flush is achieved, checks crib card for 1 more point
         counter += 1
+        return [counter, [this.state.cards, counter]];
       }
-      if (counter >= 4) {
+      if (counter >= 4) { //adds to score
         score += counter;
+        if (this.state.selectedRadio === "crib" && score < 5) { //if it is a crib and the 5th card is not consistent with flush, returns score of 0
+          return[0];
+        }
+        return [score, [this.state.cards.slice(0,this.state.cards.length - 1), score]];
       }
     }
-    if (this.state.selectedRadio === "crib" && score < 5) {
-      score = 0;
-    }
-    return score;
+    return [0, null];
   } //flushCounter
   pairCounter (input) { //Counts Pairs
     var score = 0;
