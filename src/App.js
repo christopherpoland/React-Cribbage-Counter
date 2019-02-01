@@ -9,7 +9,8 @@ class App extends Component {
       suit: '',
       number: '',
       selectedRadio: 'regular',
-      score: 0
+      score: 0,
+      points: []
     };
   // BINDINGS
     this.handleColors = this.handleColors.bind(this);
@@ -32,12 +33,12 @@ class App extends Component {
         document.getElementById(this.state.cards[i][1]).removeAttribute("style", "pointer-events: none; color: red;");
       }
     }
-    if (this.state.cards.length > 4) { //Don't update after 5 cards ***Will have to change
+    if (this.state.cards.length > 4) {
       if (nextState.score !== this.state.score || nextState.selectedRadio !== this.state.selectedRadio || nextState.cards !== this.state.cards) { //Exception if score is being updated
         return true;
       }
       else {
-        return false; //Possibly change
+        return false;
       }
     }
 
@@ -46,7 +47,6 @@ class App extends Component {
     }
   }
   componentDidUpdate() {
-    //this.handleAddition();
     if (this.state.cards.length === 5) {
       this.scoreCrib(this.state.cards);
     }
@@ -88,18 +88,18 @@ class App extends Component {
       }
     }
   }
-  scoreCrib (input) {
+  scoreCrib (input) { //input = this.state.cards
     var nums = [];
     for (var i = 0; i < input.length; i++) {
       input[i][0] === 'J' ? nums.push(11) : input[i][0] === 'Q' ? nums.push(12) : input[i][0] === 'K' ? nums.push(13) : input[i][0] === 'A' ? nums.push(1) : nums.push(Number(input[i][0]));
     }
-      this.setState({
-        score: this.pairCounter(input) + this.flushCounter(input) + this.heelNob(nums, input) + this.runCounter(nums) + this.fifteenCounter(nums)
-      }); //only one because this function will count each pair twice
+    this.setState({
+      score: this.pairCounter(input) + this.flushCounter(input) + this.heelNob(nums, input) + this.runCounter(input)[0] + this.fifteenCounter(nums,2)[0],
+      points: [this.fifteenCounter(nums, 2)[1], this.runCounter(input)[1]]
+    }); 
   }
-  fifteenCounter (cards) {
-    var score = 0;
-    var sumNumbers = 0;
+  fifteenCounter (cards, increment) {
+    var score = 0, sumNumbers = 0, points = [];
     for (var i = 0; i < cards.length; i++) {
       if (cards[i] > 10) {
         cards.splice(i,1,10); //replaces jack,queen,king with 10 for adding purposes
@@ -107,56 +107,84 @@ class App extends Component {
       sumNumbers += cards[i]; //adds numbers with replaced cards for following function
     }
     if (sumNumbers === 15) { //Counts combos of 5 cards
-      score += 2;
+      score += increment; //adds to score contributed by 15's
+      points.push(this.state.cards,increment); //pushes cards responsible for points to the state.points
     }
     for (var j = 0; j < cards.length; j++) {
       if (sumNumbers - cards[j] === 15) { //Counts combos of 4 cards
-        score += 2;
+        score += increment;
+        points.push(this.state.cards.slice(0,j).concat(this.state.cards.slice(j+1)),increment); //omits the one card not responsible
       }
       for (var k = j + 1; k < cards.length; k++) {
         if (cards[j] + cards[k] === 15) { //Counts combos of 2 cards
-          score += 2;
+          score += increment;
+          points.push([this.state.cards[j]].concat([this.state.cards[k]]),increment); //includes the 2 cards responsible
         }
         if (sumNumbers - cards[j] - cards[k] === 15) { //Counts combos of 3 cards
-          score += 2;
+          score += increment;
+
         }
       }
     }
-    return score;
+    return [score, points];
   } //fifteenCounter
   runCounter (cards) { //counts runs
-    var numbers = cards.sort(function sortIt(a,b) {return a - b;});
-      //console.log(numRemoved[0],numbers);
-      var i = 0, counter = 0, pairMult = 1, score = 0;
-      while (i < numbers.length) {
-        if (numbers[i] + 1 === numbers[i+1]) { //numbers in a row
+    var onlyNumbers = [], points = [];
+    for (var j = 0; j < cards.length; j++) { //assigns numerical values to face cards/aces
+      cards[j][0] === 'J' ? onlyNumbers.push([11,j]) : cards[j][0] === 'Q' ? onlyNumbers.push([12,j]) : cards[j][0] === 'K' ? onlyNumbers.push([13,j]) : cards[j][0] === 'A' ? onlyNumbers.push([1,j]) : onlyNumbers.push([Number(cards[j][0]),j]);
+    }
+    var numbers = onlyNumbers.sort(function sortIt(a,b) {
+      if (a[0] > b[0]) {
+        return 1;
+      }
+      else if (a[0] < b[0]) {
+        return -1;
+      }
+      return 0;
+    }); //sorts numbers
+      var i = 0, counter = 0, pairMult = 1, score = 0; //Counter keeps track of amount of cards in a row, pairMult is the multiplier that assigns points based on multiple runs
+      while (i < numbers.length - 1) {
+        if (numbers[i][0] + 1 === numbers[i+1][0]) { //numbers in a row
           counter += 1;
+          if (points[points.length - 1] !== cards[numbers[i][1]]) {
+            points.push(cards[numbers[i][1]]);
+          }
+          points.push(cards[numbers[i + 1][1]]);
         }
-        else if (numbers[i] === numbers[i+1] && numbers[i+1] === numbers[i+2]) { //triples
+        else if (i < 3 && (numbers[i][0] === numbers[i+1][0] && numbers[i+1][0] === numbers[i+2][0])) { //triples
           pairMult += 2;
+          points.push(cards[numbers[i + 1][1]])
           i++; //skips the 3rd pair, already accounted for
         }
-        else if (numbers[i] === numbers[i+1]) { //doubles, accounts for 2 doubles
-          if (pairMult === 1) {
+
+
+        else if (numbers[i][0] === numbers[i+1][0]) { //doubles, accounts for 2 doubles
+          if (pairMult === 1) { //if this is first double, double multiplier
             pairMult += 1;
           }
           else {
-            pairMult += 2;
+            pairMult += 2; //if this is second double, double a second time (x4)
           }
+          if (points[points.length - 1] !== cards[numbers[i][1]]) {
+            points.push(cards[numbers[i][1]]);
+          }
+          points.push(cards[numbers[i + 1][1]]);
         }
-        else if (counter < 2) { //Non run numbers without a run already
+        else if (counter < 2) { //Non run numbers without a run already (reset basically)
           counter = 0;
           pairMult = 1;
+          //points = [];
         }
         else { //If a run has occured, breaks off function to avoid doubles not in run
           break;
         }
+
         i++;
       }
     if (counter >= 2) { //Counts run
       score += pairMult * (counter + 1);
     }
-    return score;
+    return [score, [points,score]];
   } //runCounter
   flushCounter (input) { //Counts flushes
     var suits = ["♣","♦","♥","♠"], score = 0;
@@ -232,16 +260,15 @@ class App extends Component {
       number: '',
       suit: '',
       score: 0,
-      selectedRadio: 'regular'
+      selectedRadio: 'regular',
+      points: []
     });
   }
   handleRemove (event) {
     for(var i = 0; i < this.state.cards.length; i++) {
-      console.log(event.target);
       if (this.state.cards[i][0] === event.target.id[0] && this.state.cards[i][1] === event.target.id[2]) {
-        console.log(this.state.cards.slice(0,i).concat(this.state.cards.slice(i+1)))
         this.setState({
-          cards: this.state.cards.slice(0,i).concat(this.state.cards.slice(i+1)) //[this.state.cards.slice(0,i),this.state.cards.slice(i+1)]
+          cards: this.state.cards.slice(0,i).concat(this.state.cards.slice(i+1))
         })
       }
     }
@@ -338,7 +365,7 @@ class CardNumbers extends Component {
   }
   getColor(id) {
     if (this.props.number === String(id)) {
-      return 'blue';
+      return '#5792f2';
     }
 
   }
@@ -365,7 +392,7 @@ class CardSuits extends Component {
   }
   getColor(id) {
     if (this.props.suit === String(id)) {
-      return 'blue';
+      return '#5792f2';
     }
 
   }
