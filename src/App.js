@@ -94,8 +94,8 @@ class App extends Component {
       input[i][0] === 'J' ? nums.push(11) : input[i][0] === 'Q' ? nums.push(12) : input[i][0] === 'K' ? nums.push(13) : input[i][0] === 'A' ? nums.push(1) : nums.push(Number(input[i][0]));
     }
     this.setState({
-      score: this.pairCounter(input) + this.flushCounter(input)[0] + this.heelNob(nums, input) + this.runCounter(input)[0] + this.fifteenCounter(nums,2)[0],
-      points: [this.fifteenCounter(nums, 2)[1], this.runCounter(input)[1], this.flushCounter(input)[1]  ]
+      score: this.pairCounter(input, 2)[0] + this.flushCounter(input)[0] + this.heelNob(input)[0] + this.runCounter(input)[0] + this.fifteenCounter(nums,2)[0],
+      points: [this.fifteenCounter(nums, 2)[1], this.runCounter(input)[1], this.flushCounter(input)[1], this.pairCounter(input, 2)[1], this.heelNob(input)[1]   ]
     });
   }
   fifteenCounter (cards, increment) {
@@ -126,6 +126,9 @@ class App extends Component {
 
         }
       }
+    }
+    if (points.length === 0) {
+      return [score, null];
     }
     return [score, points];
   } //fifteenCounter
@@ -211,32 +214,35 @@ class App extends Component {
     }
     return [0, null];
   } //flushCounter
-  pairCounter (input) { //Counts Pairs
-    var score = 0;
+  pairCounter (input, increment) { //Counts Pairs
+    var score = 0, points = [];
     for(var i = 0; i < 4; i++) {
         var j = i + 1;
       while(j <= 4) {
         if(input[i][0] === input[j][0]) {
-          score += 2;
+          score += increment;
+          points.push([this.state.cards[i],this.state.cards[j]],increment)
         }
         j++;
       }
     }
-    return score;
+    if (points.length === 0) {
+      return [score, null];
+    }
+    return [score,points];
   } //pairCounter
-  heelNob (nums,input) {  //***NOT IN THE LAST 5 POINTS***
+  heelNob (input) {  //***NOT IN THE LAST 5 POINTS***
     //heels
-    var score = 0;
-    if (nums[4] === 11 && this.state.selectedRadio === 'dealer') { //if crib card is a jack and dealer is true
-      score += 2;
+    if (input[4][0] === "J" && this.state.selectedRadio === 'dealer') { //if crib card is a jack and dealer is true
+      return [2, [input[4]]];
     }
     //nobs
-    for(var i = 0; i < 4; i++) {
+    for (var i = 0; i < 4; i++) {
       if (input[i][0] === 'J' && input[i][1] === input[4][1]) { //checks if cards are a jack & if suit matches crib card
-        score += 1;
+        return [1, [this.state.cards[i],1]];
       }
     }
-    return score;
+    return [0,null];
   } //heelNob
   handleColors() {
     for (var i = 0; i < this.state.cards.length; i++) {
