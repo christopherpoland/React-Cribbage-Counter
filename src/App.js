@@ -89,38 +89,33 @@ class App extends Component {
     }
   }
   scoreCrib (input) { //input = this.state.cards
-    var nums = [];
-    for (var i = 0; i < input.length; i++) {
-      input[i][0] === 'J' ? nums.push(11) : input[i][0] === 'Q' ? nums.push(12) : input[i][0] === 'K' ? nums.push(13) : input[i][0] === 'A' ? nums.push(1) : nums.push(Number(input[i][0]));
-    }
+
     this.setState({
-      score: this.pairCounter(input, 2)[0] + this.flushCounter(input)[0] + this.heelNob(input)[0] + this.runCounter(input)[0] + this.fifteenCounter(nums,2)[0],
-      points: [this.fifteenCounter(nums, 2)[1], this.runCounter(input)[1], this.flushCounter(input)[1], this.pairCounter(input, 2)[1], this.heelNob(input)[1]   ]
+      score: this.pairCounter(input, 2)[0] + this.flushCounter(input)[0] + this.heelNob(input)[0] + this.runCounter(input)[0] + this.fifteenCounter(input,2)[0],
+      points: [this.fifteenCounter(input, 2)[1], this.runCounter(input)[1], this.flushCounter(input)[1], this.pairCounter(input, 2)[1], this.heelNob(input)[1]   ]
     });
   }
-  fifteenCounter (cards, increment) {
-    var score = 0, sumNumbers = 0, points = [];
-    for (var i = 0; i < cards.length; i++) {
-      if (cards[i] > 10) {
-        cards.splice(i,1,10); //replaces jack,queen,king with 10 for adding purposes
-      }
-      sumNumbers += cards[i]; //adds numbers with replaced cards for following function
+  fifteenCounter (input, increment) {
+    var nums = [];
+    for (var i = 0; i < input.length; i++) {
+      input[i][0] === 'J' || input[i][0] === 'Q' || input[i][0] === 'K' ? nums.push(10) : input[i][0] === 'A' ? nums.push(1) : nums.push(Number(input[i][0]));
     }
+    var score = 0, sumNumbers = nums.reduce((a,b) => a + b), points = [];
     if (sumNumbers === 15) { //Counts combos of 5 cards
       score += increment; //adds to score contributed by 15's
       points.push(this.state.cards,increment); //pushes cards responsible for points to the state.points
     }
-    for (var j = 0; j < cards.length; j++) {
-      if (sumNumbers - cards[j] === 15) { //Counts combos of 4 cards
+    for (var j = 0; j < nums.length; j++) {
+      if (sumNumbers - nums[j] === 15) { //Counts combos of 4 cards
         score += increment;
         points.push(this.state.cards.slice(0,j).concat(this.state.cards.slice(j+1)),increment); //omits the one card not responsible
       }
-      for (var k = j + 1; k < cards.length; k++) {
-        if (cards[j] + cards[k] === 15) { //Counts combos of 2 cards
+      for (var k = j + 1; k < nums.length; k++) {
+        if (nums[j] + nums[k] === 15) { //Counts combos of 2 cards
           score += increment;
           points.push([this.state.cards[j]].concat([this.state.cards[k]]),increment); //includes the 2 cards responsible
         }
-        if (sumNumbers - cards[j] - cards[k] === 15) { //Counts combos of 3 cards
+        if (sumNumbers - nums[j] - nums[k] === 15) { //Counts combos of 3 cards
           score += increment;
           points.push(this.state.cards.slice(0,j).concat(this.state.cards.slice(j+1,k).concat(this.state.cards.slice(k+1))),increment)
 
