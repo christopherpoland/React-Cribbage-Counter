@@ -23,6 +23,7 @@ class App extends Component {
     this.handleReset = this.handleReset.bind(this);
     this.handleClickTop = this.handleClickTop.bind(this);
     this.handleRemove = this.handleRemove.bind(this);
+    this.debug = this.debug.bind(this);
   }
   shouldComponentUpdate (nextProps,nextState) {
     for (var i = 0; i < this.state.cards.length; i++) {
@@ -49,6 +50,8 @@ class App extends Component {
   componentDidUpdate() {
     if (this.state.cards.length === 5) {
       this.scoreCrib(this.state.cards);
+      document.getElementById("pointDisplayWrapper").style.display = "grid";
+
     }
     if (this.state.cards.length < 5 && this.state.score > 0) {
       this.setState({
@@ -103,21 +106,21 @@ class App extends Component {
     var score = 0, sumNumbers = nums.reduce((a,b) => a + b), points = [];
     if (sumNumbers === 15) { //Counts combos of 5 cards
       score += increment; //adds to score contributed by 15's
-      points.push(this.state.cards,increment); //pushes cards responsible for points to the state.points
+      points.push([this.state.cards,increment]); //pushes cards responsible for points to the state.points
     }
     for (var j = 0; j < nums.length; j++) {
       if (sumNumbers - nums[j] === 15) { //Counts combos of 4 cards
         score += increment;
-        points.push(this.state.cards.slice(0,j).concat(this.state.cards.slice(j+1)),increment); //omits the one card not responsible
+        points.push([this.state.cards.slice(0,j).concat(this.state.cards.slice(j+1)),increment]); //omits the one card not responsible
       }
       for (var k = j + 1; k < nums.length; k++) {
         if (nums[j] + nums[k] === 15) { //Counts combos of 2 cards
           score += increment;
-          points.push([this.state.cards[j]].concat([this.state.cards[k]]),increment); //includes the 2 cards responsible
+          points.push([[this.state.cards[j]].concat([this.state.cards[k]]),increment]); //includes the 2 cards responsible
         }
         if (sumNumbers - nums[j] - nums[k] === 15) { //Counts combos of 3 cards
           score += increment;
-          points.push(this.state.cards.slice(0,j).concat(this.state.cards.slice(j+1,k).concat(this.state.cards.slice(k+1))),increment)
+          points.push([this.state.cards.slice(0,j).concat(this.state.cards.slice(j+1,k).concat(this.state.cards.slice(k+1))),increment])
 
         }
       }
@@ -202,7 +205,7 @@ class App extends Component {
       if (counter >= 4) { //adds to score
         score += counter;
         if (this.state.selectedRadio === "crib" && score < 5) { //if it is a crib and the 5th card is not consistent with flush, returns score of 0
-          return[0];
+          return[0, null];
         }
         return [score, [this.state.cards.slice(0,this.state.cards.length - 1), score]];
       }
@@ -229,7 +232,7 @@ class App extends Component {
   heelNob (input) {  //***NOT IN THE LAST 5 POINTS***
     //heels
     if (input[4][0] === "J" && this.state.selectedRadio === 'dealer') { //if crib card is a jack and dealer is true
-      return [2, [input[4]]];
+      return [2, [input[4],2]];
     }
     //nobs
     for (var i = 0; i < 4; i++) {
@@ -278,19 +281,27 @@ class App extends Component {
       }
     }
   }
+  debug () {
+    this.setState({
+      //cards: [["5","♣"],["10","♣"],["5","♦"],["10","♥"],["5","♥"]]
+      cards: [["A","♣"],["2","♣"],["3","♣"],["J","♣"],["J","♥"]]
+    })
+  }
   render() {
 
     return (
       <div className="fullWrapper">
         <Cards cards = {this.state.cards} handleRemove = {this.handleRemove}/>
         <div id = "inputWrapper">
-          <HandType handleClick = {this.handleRadio} selectedRadio = {this.state.selectedRadio}/>
+          <HandType handleClick = {this.handleRadio} selectedRadio = {this.state.selectedRadio} id = "formWrapper"/>
           <div id ="score">Score: {this.state.score}</div>
         </div>
         <div className="buttonWrapper">
           <CardSuits labels = {this.props.suits} handleClick = {this.handleClickTop} suit = {this.state.suit} cards = {this.state.cards}/>
           <CardNumbers labels = {this.props.numbers} handleClick = {this.handleClickTop} number = {this.state.number} cards = {this.state.cards} reset = {this.handleReset}/>
+          <div id = "debug" onClick = {this.debug}> :) </div>
         </div>
+        <Results points = {this.state.points} score = {this.state.score} handleRadio = {this.handleRadio} selectedRadio = {this.state.selectedRadio}/>
       </div>
     );
   }
@@ -302,7 +313,7 @@ App.defaultProps = {
 class HandType extends Component {
   render() {
     return (
-      <div id = "formWrapper">
+      <div id = {this.props.id}>
         <form>
           <label>
             <input type="radio" value="regular" checked={this.props.selectedRadio === 'regular'} onChange = {this.props.handleClick} />
@@ -406,6 +417,66 @@ class CardSuits extends Component {
     return (
       <div id = "suitWrapper">
         {suits}
+      </div>
+    );
+  }
+}
+class Results extends Component {
+  constructor(props) {
+    super(props);
+  // BINDINGS
+  this.closeModal = this.closeModal.bind(this);
+  }
+  closeModal () {
+    document.getElementById("pointDisplayWrapper").style.display = "none";
+  }
+  render() {
+    //iterates through only fifteens to display cards responsible
+    const fifteenDisplay = this.props.points.slice(0,1).map(point =>
+      <div id = "fifteenGrid">
+        {/*Display the fifteen header if there are 15s*/}
+        {point !== null ? <p>Fifteens</p> : []}
+          <div id = "pointContainer">
+          {/*If there are fifteens, it displays a div with the cards and the points allocated*/}
+          {point !== null ? point.map(j =>
+            <div id = "fifteenPoints">
+              <div>{j[0]}</div> {/*The cards in the fifteen*/}
+              <div>{j[1]}</div> {/*The points from the fifteen*/}
+            </div>) : []}
+          </div>
+      </div>
+    )
+    const pointTitles = ["Runs","Flush","Pairs","Heels and Nobs"]; //Headers for points
+    //Iterates through the rest
+    const pointDisplay = this.props.points.slice(1,this.props.points.length).map((nested,index) =>
+      <div id = "pointGrid">
+        {/*Displays headers if necessary */}
+        {nested !== null ? <p>{pointTitles[index]}</p> : []}
+        <div id = 'pointContainer'>
+          <div id = "remainderPoints">
+            {/*Iterates through cards responsible and displays*/}
+            {nested !== null ? nested.slice(0,nested.length - 1).map(i =>
+              <div>{i}</div>) : []} {/*Cards in point allocation*/}
+              <div>
+                {nested !== null ? nested[1] : []} {/*points*/}
+              </div>
+          </div>
+        </div>
+      </div>
+    )
+    return (
+      <div id = "pointDisplayWrapper">
+        <div id = "pointDisplay">
+          <div id = "closeModal" onClick={this.closeModal}>
+            <i id = "modalX" className="material-icons">close</i>
+          </div>
+          <HandType handleClick = {this.props.handleRadio} selectedRadio = {this.props.selectedRadio} id = "modalFormWrapper"/>
+          <div id ="scoreModal">Score: {this.props.score}</div>
+          <div id = "pointDisplayContent">
+            {fifteenDisplay}
+            {pointDisplay}
+          </div>
+        </div>
       </div>
     );
   }

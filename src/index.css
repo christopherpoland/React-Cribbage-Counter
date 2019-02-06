@@ -71,7 +71,6 @@ code {
 .removeCard {
   align-items: start;
   justify-items: end;
-  /*position: relative; */
   z-index: 1001;
   font-size: 1em;
   grid-column: 1 / 2;
@@ -209,6 +208,52 @@ code {
     text-align: left;
     font-size: 10vh;
   }
+}
+#pointDisplayWrapper {
+  display: none;
+  align-items: center;
+  justify-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  z-index: 1010;
+  background-color: rgba(100,100,100,0.8);
+}
+#pointDisplay {
+  display: grid;
+  height: 80%;
+  width: 80%;
+  background-color: white;
+}
+#modalFormWrapper form {
+
+}
+#pointDisplayContent {
+  height: 100%;
+  width: 100%;
+  align-items: center;
+}
+#fifteenGrid {
+  display: grid;
+  grid-template-rows: auto auto;
+}
+#pointContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(50px, 150px));
+}
+#fifteenPoints {
+  display: grid;
+  grid-template-columns: auto auto;
+}
+#pointGrid {
+  display: grid;
+  grid-template-rows: auto auto;
+}
+#remainderPoints {
+  display: grid;
+  grid-template-columns: auto auto;
 }
 @media (min-height: 520px) and (max-width: 500px) {
   #score {
