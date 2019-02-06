@@ -274,7 +274,9 @@ class App extends Component {
   }
   handleRemove (event) {
     for(var i = 0; i < this.state.cards.length; i++) {
-      if (this.state.cards[i][0] === event.target.id[0] && this.state.cards[i][1] === event.target.id[2]) {
+      console.log(this.state.cards[i][0],event.target.id[0] + event.target.id[1]);
+      //handles removal of cards, including 10's which have different formatting
+      if ((this.state.cards[i][0] === event.target.id[0] || this.state.cards[i][0] === (event.target.id[0] + event.target.id[1])) && (this.state.cards[i][1] === event.target.id[2] || this.state.cards[i][1] === event.target.id[3])) {
         this.setState({
           cards: this.state.cards.slice(0,i).concat(this.state.cards.slice(i+1))
         })
@@ -435,12 +437,12 @@ class Results extends Component {
     const fifteenDisplay = this.props.points.slice(0,1).map(point =>
       <div id = "fifteenGrid">
         {/*Display the fifteen header if there are 15s*/}
-        {point !== null ? <p>Fifteens</p> : []}
+        {point !== null ? <p className = "pointHeader">Fifteens</p> : []}
           <div id = "pointContainer">
           {/*If there are fifteens, it displays a div with the cards and the points allocated*/}
           {point !== null ? point.map(j =>
             <div id = "fifteenPoints">
-              <div>{j[0]}</div> {/*The cards in the fifteen*/}
+              <div className = "cardsResponible">{j[0]}</div> {/*The cards in the fifteen*/}
               <div>{j[1]}</div> {/*The points from the fifteen*/}
             </div>) : []}
           </div>
@@ -451,12 +453,12 @@ class Results extends Component {
     const pointDisplay = this.props.points.slice(1,this.props.points.length).map((nested,index) =>
       <div id = "pointGrid">
         {/*Displays headers if necessary */}
-        {nested !== null ? <p>{pointTitles[index]}</p> : []}
+        {nested !== null ? <p className = "pointHeader">{pointTitles[index]}</p> : []}
         <div id = 'pointContainer'>
           <div id = "remainderPoints">
             {/*Iterates through cards responsible and displays*/}
             {nested !== null ? nested.slice(0,nested.length - 1).map(i =>
-              <div>{i}</div>) : []} {/*Cards in point allocation*/}
+              <div className = "cardsResponible">{i}</div>) : []} {/*Cards in point allocation*/}
               <div>
                 {nested !== null ? nested[1] : []} {/*points*/}
               </div>

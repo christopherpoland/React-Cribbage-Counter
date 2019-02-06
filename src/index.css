@@ -222,10 +222,10 @@ code {
   background-color: rgba(100,100,100,0.8);
 }
 #pointDisplay {
-  display: grid;
   height: 80%;
   width: 80%;
   background-color: white;
+  grid-row-gap: 0.5em;
 }
 #closeModal {
   display: grid;
@@ -252,30 +252,32 @@ code {
   grid-template-rows: 1fr 1fr 1fr;
 }
 #pointDisplayContent {
-  height: 100%;
-  width: 100%;
-  align-items: center;
-}
-#fifteenGrid {
   display: grid;
-  grid-template-rows: auto auto;
+  grid-template-columns: repeat(auto-fill, minmax(100px,150px));
+  justify-items: center;
+}
+#fifteenGrid, #pointGrid {
+  display: flex;
+  flex-direction: column;
+  flex-basis: auto;
 }
 #pointContainer {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(50px, 150px));
+  grid-template-row: repeat(auto-fit, 1fr));
 }
-#fifteenPoints {
-  display: grid;
-  grid-template-columns: auto auto;
+#fifteenPoints, #remainderPoints {
+  display: flex;
+  flex-direction: row;
+  flex-basis: auto;
 }
-#pointGrid {
-  display: grid;
-  grid-template-rows: auto auto;
+.pointHeader {
+  text-align: center;
+  margin: 1em 0 0.5em 0;
 }
-#remainderPoints {
-  display: grid;
-  grid-template-columns: auto auto;
+.cardsResponible {
+  padding-right: 0.5em;
 }
+
 @media (min-height: 520px) and (max-width: 500px) {
   #score {
     font-size: 7vh;
