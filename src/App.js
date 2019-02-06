@@ -470,8 +470,10 @@ class Results extends Component {
           <div id = "closeModal" onClick={this.closeModal}>
             <i id = "modalX" className="material-icons">close</i>
           </div>
-          <HandType handleClick = {this.props.handleRadio} selectedRadio = {this.props.selectedRadio} id = "modalFormWrapper"/>
-          <div id ="scoreModal">Score: {this.props.score}</div>
+          <div id = "modalTopWrapper">
+            <HandType handleClick = {this.props.handleRadio} selectedRadio = {this.props.selectedRadio} id = "modalFormWrapper"/>
+            <div id ="scoreModal">Score: {this.props.score}</div>
+          </div>
           <div id = "pointDisplayContent">
             {fifteenDisplay}
             {pointDisplay}

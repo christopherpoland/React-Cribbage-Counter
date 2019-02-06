@@ -227,8 +227,29 @@ code {
   width: 80%;
   background-color: white;
 }
+#closeModal {
+  display: grid;
+  height: 28px;
+  justify-items: end;
+  align-items: center;
+  background-color: red;
+  padding: 0.3em;
+}
+#modalTopWrapper {
+  display: grid;
+  grid-template-columns: auto auto;
+}
+#scoreModal {
+  justify-self: start;
+  align-self: center;
+  font-size: 10vh;
+}
+#modalFormWrapper {
+  justify-self: start;
+}
 #modalFormWrapper form {
-
+  display: grid;
+  grid-template-rows: 1fr 1fr 1fr;
 }
 #pointDisplayContent {
   height: 100%;
