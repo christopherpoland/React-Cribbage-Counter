@@ -18,6 +18,7 @@ class App extends Component {
     this.scoreCrib = this.scoreCrib.bind(this);
     this.pairCounter = this.pairCounter.bind(this);
     this.flushCounter = this.flushCounter.bind(this);
+    this.flushSorter = this.flushSorter.bind(this);
     this.runCounter = this.runCounter.bind(this);
     this.fifteenCounter = this.fifteenCounter.bind(this);
     this.handleReset = this.handleReset.bind(this);
@@ -200,21 +201,15 @@ class App extends Component {
       }
       if (counter >= 4 && input[4][1] === suits[i]) { //if a flush is achieved, checks crib card for 1 more point
         counter += 1
-        return [counter, this.state.cards.slice(0).sort(function sortIt(a,b) {
-          if (a[0] > b[0]) {
-            return 1;
-          }
-          else if (a[0] < b[0]) {
-            return -1;
-          }
-          return 0;
-        }), "Flushes"];
+        return [counter, this.flushSorter(this.state.cards.slice(0)), "Flushes"];
       }
       if (counter >= 4) { //adds to score
         if (this.state.selectedRadio === "crib" && counter < 5) { //if it is a crib and the 5th card is not consistent with flush, returns score of 0
           return[0, null, "Flushes"];
         }
         return [counter, this.state.cards.slice(0,this.state.cards.length - 1).sort(function sortIt(a,b) {
+          console.log(a[0],b[0])
+
           if (a[0] > b[0]) {
             return 1;
           }
@@ -227,6 +222,21 @@ class App extends Component {
     }
     return [0, null, "Flushes"];
   } //flushCounter
+  flushSorter (input) {
+    var firstOperator,secondOperator;
+    input.sort(function sortIt(a,b) {
+      a[0] === "J" ? firstOperator = "11" : a[0] === "Q" ? firstOperator = "12" : a[0] === "K" ? firstOperator = "13" : a[0] === "A" ? firstOperator = "1" : firstOperator = a[0];
+      b[0] === "J" ? secondOperator = "11" : b[0] === "Q" ? secondOperator = "12" : b[0] === "K" ? secondOperator = "13" : b[0] === "A" ? secondOperator = "1" : secondOperator = b[0];
+      if (Number(firstOperator) > Number(secondOperator)) {
+        return 1;
+      }
+      else if (Number(firstOperator) < Number(secondOperator)) {
+        return -1;
+      }
+      return 0;
+    })
+    return input;
+  }
   pairCounter (input, increment) { //Counts Pairs
     var score = 0, points = [];
     for(var i = 0; i < 4; i++) {
@@ -300,7 +310,7 @@ class App extends Component {
   debug () {
     this.setState({
       //cards: [["5","♣"],["10","♣"],["5","♦"],["10","♥"],["5","♥"]]
-      cards: [["10","♣"],["9","♣"],["Q","♣"],["J","♣"],["J","♥"]]
+      cards: [["10","♣"],["9","♣"],["Q","♣"],["J","♣"],["K","♣"]]
     })
   }
   render() {
@@ -358,10 +368,7 @@ class Cards extends Component {
       return false;
     }
   }
-  /*componentDidUpdate() {
-    const yo = this.props.cards.map(i => <div id = {i} key = {i}>{i}</div>)
-  } */
-  //const yo = this.props.cards;
+
   render() {
     const cardDisplay = this.props.cards.map(i =>
     <div key = {"cardWrapperInside" + i}  id = "cardWrapperInside">
@@ -452,7 +459,7 @@ class Results extends Component {
     //const fifteenPairTitles = ["Fifteens","Pairs"]; //Headers for points
     return (
       this.props.points.filter(x => x[1] !== null).map((point,index) =>
-        <div id = "pointWrapper">
+        <div key = {point[2]} id = "pointWrapper">
           {/*Display the fifteen header if there are 15s*/}
           {point !== null && <p className = "pointHeader">{point[2]}</p>}
             {/*If there are fifteens, it displays a div with the cards and the points allocated*/}
