@@ -95,7 +95,7 @@ class App extends Component {
 
     this.setState({
       score: this.pairCounter(input, 2)[0] + this.flushCounter(input)[0] + this.heelNob(input)[0] + this.runCounter(input)[0] + this.fifteenCounter(input,2)[0],
-      points: [this.fifteenCounter(input, 2)[1], this.runCounter(input)[1], this.flushCounter(input)[1], this.pairCounter(input, 2)[1], this.heelNob(input)[1]   ]
+      points: [this.fifteenCounter(input, 2), this.pairCounter(input, 2), this.runCounter(input), this.flushCounter(input), this.heelNob(input)   ]
     });
   }
   fifteenCounter (input, increment) {
@@ -103,24 +103,24 @@ class App extends Component {
     for (var i = 0; i < input.length; i++) {
       input[i][0] === 'J' || input[i][0] === 'Q' || input[i][0] === 'K' ? nums.push(10) : input[i][0] === 'A' ? nums.push(1) : nums.push(Number(input[i][0]));
     }
-    var score = 0, sumNumbers = nums.reduce((a,b) => a + b), points = [];
+    var score = 0, sumNumbers = nums.reduce((a,b) => a + b), points = []; //Adds all numbers
     if (sumNumbers === 15) { //Counts combos of 5 cards
       score += increment; //adds to score contributed by 15's
-      points.push([this.state.cards,increment]); //pushes cards responsible for points to the state.points
+      points.push(this.state.cards); //pushes cards responsible for points to the state.points
     }
     for (var j = 0; j < nums.length; j++) {
       if (sumNumbers - nums[j] === 15) { //Counts combos of 4 cards
         score += increment;
-        points.push([this.state.cards.slice(0,j).concat(this.state.cards.slice(j+1)),increment]); //omits the one card not responsible
+        points.push(this.state.cards.slice(0,j).concat(this.state.cards.slice(j+1))); //omits the one card not responsible
       }
       for (var k = j + 1; k < nums.length; k++) {
         if (nums[j] + nums[k] === 15) { //Counts combos of 2 cards
           score += increment;
-          points.push([[this.state.cards[j]].concat([this.state.cards[k]]),increment]); //includes the 2 cards responsible
+          points.push(this.state.cards[j].concat(this.state.cards[k])); //includes the 2 cards responsible
         }
         if (sumNumbers - nums[j] - nums[k] === 15) { //Counts combos of 3 cards
           score += increment;
-          points.push([this.state.cards.slice(0,j).concat(this.state.cards.slice(j+1,k).concat(this.state.cards.slice(k+1))),increment])
+          points.push(this.state.cards.slice(0,j).concat(this.state.cards.slice(j+1,k).concat(this.state.cards.slice(k+1))))
 
         }
       }
@@ -128,7 +128,7 @@ class App extends Component {
     if (points.length === 0) {
       return [score, null];
     }
-    return [score, points];
+    return [score, points, "Fifteens"];
   } //fifteenCounter
   runCounter (cards) { //counts runs
     var onlyNumbers = [], points = [];
@@ -185,12 +185,12 @@ class App extends Component {
       }
     if (counter >= 2) { //Counts run
       score += pairMult * (counter + 1);
-      return [score, [points,score]];
+      return [score, points, "Runs"];
     }
-    return [0,null];
+    return [0,null, "Runs"];
   } //runCounter
   flushCounter (input) { //Counts flushes
-    var suits = ["♣","♦","♥","♠"], score = 0;
+    var suits = ["♣","♦","♥","♠"];
     for(var i = 0; i < 4; i++) { //iterates through each suit
       var counter = 0;
       for (var j = 0; j < 4; j++) { //iterates through hand cards and adds to counter
@@ -200,17 +200,32 @@ class App extends Component {
       }
       if (counter >= 4 && input[4][1] === suits[i]) { //if a flush is achieved, checks crib card for 1 more point
         counter += 1
-        return [counter, [this.state.cards, counter]];
+        return [counter, this.state.cards.slice(0).sort(function sortIt(a,b) {
+          if (a[0] > b[0]) {
+            return 1;
+          }
+          else if (a[0] < b[0]) {
+            return -1;
+          }
+          return 0;
+        }), "Flushes"];
       }
       if (counter >= 4) { //adds to score
-        score += counter;
-        if (this.state.selectedRadio === "crib" && score < 5) { //if it is a crib and the 5th card is not consistent with flush, returns score of 0
-          return[0, null];
+        if (this.state.selectedRadio === "crib" && counter < 5) { //if it is a crib and the 5th card is not consistent with flush, returns score of 0
+          return[0, null, "Flushes"];
         }
-        return [score, [this.state.cards.slice(0,this.state.cards.length - 1), score]];
+        return [counter, this.state.cards.slice(0,this.state.cards.length - 1).sort(function sortIt(a,b) {
+          if (a[0] > b[0]) {
+            return 1;
+          }
+          else if (a[0] < b[0]) {
+            return -1;
+          }
+          return 0;
+        }), "Flushes"];
       }
     }
-    return [0, null];
+    return [0, null, "Flushes"];
   } //flushCounter
   pairCounter (input, increment) { //Counts Pairs
     var score = 0, points = [];
@@ -219,25 +234,25 @@ class App extends Component {
       while(j <= 4) {
         if(input[i][0] === input[j][0]) {
           score += increment;
-          points.push([this.state.cards[i],this.state.cards[j]],increment)
+          points.push(this.state.cards[i].concat(this.state.cards[j]))
         }
         j++;
       }
     }
     if (points.length === 0) {
-      return [score, null];
+      return [score, null, "Pairs"];
     }
-    return [score,points];
+    return [score, points, "Pairs"];
   } //pairCounter
   heelNob (input) {  //***NOT IN THE LAST 5 POINTS***
     //heels
     if (input[4][0] === "J" && this.state.selectedRadio === 'dealer') { //if crib card is a jack and dealer is true
-      return [2, [input[4],2]];
+      return [2, [input[4],2], "Heels"];
     }
     //nobs
     for (var i = 0; i < 4; i++) {
       if (input[i][0] === 'J' && input[i][1] === input[4][1]) { //checks if cards are a jack & if suit matches crib card
-        return [1, [this.state.cards[i],1]];
+        return [1, this.state.cards[i], "Nobs"];
       }
     }
     return [0,null];
@@ -274,7 +289,6 @@ class App extends Component {
   }
   handleRemove (event) {
     for(var i = 0; i < this.state.cards.length; i++) {
-      console.log(this.state.cards[i][0],event.target.id[0] + event.target.id[1]);
       //handles removal of cards, including 10's which have different formatting
       if ((this.state.cards[i][0] === event.target.id[0] || this.state.cards[i][0] === (event.target.id[0] + event.target.id[1])) && (this.state.cards[i][1] === event.target.id[2] || this.state.cards[i][1] === event.target.id[3])) {
         this.setState({
@@ -286,7 +300,7 @@ class App extends Component {
   debug () {
     this.setState({
       //cards: [["5","♣"],["10","♣"],["5","♦"],["10","♥"],["5","♥"]]
-      cards: [["A","♣"],["2","♣"],["3","♣"],["J","♣"],["J","♥"]]
+      cards: [["10","♣"],["9","♣"],["Q","♣"],["J","♣"],["J","♥"]]
     })
   }
   render() {
@@ -428,44 +442,35 @@ class Results extends Component {
     super(props);
   // BINDINGS
   this.closeModal = this.closeModal.bind(this);
+  this.PointDisplay = this.PointDisplay.bind(this);
   }
   closeModal () {
     document.getElementById("pointDisplayWrapper").style.display = "none";
+    console.log(this.props.points.slice(2,3))
+  }
+  PointDisplay () {
+    //const fifteenPairTitles = ["Fifteens","Pairs"]; //Headers for points
+    return (
+      this.props.points.filter(x => x[1] !== null).map((point,index) =>
+        <div id = "pointWrapper">
+          {/*Display the fifteen header if there are 15s*/}
+          {point !== null && <p className = "pointHeader">{point[2]}</p>}
+            {/*If there are fifteens, it displays a div with the cards and the points allocated*/}
+            {(point !== null && (point[2] === "Fifteens" || point[2] === "Pairs")) && point[1].map(j =>
+              <div id = "pointsCards">
+                <div className = "cardsResponible">{j}</div> {/*The cards in the fifteen*/}
+                <div>2</div>
+              </div>)}
+            {(point !== null && (point[2] !== "Fifteens" && point[2] !== "Pairs")) &&
+              <div id = "pointsCards">
+                <div className = "cardsResponible">{point[1]}</div> {/*The cards in the fifteen*/}
+                <div>{point[0]}</div>
+              </div>}
+        </div>
+      )
+    )
   }
   render() {
-    //iterates through only fifteens to display cards responsible
-    const fifteenDisplay = this.props.points.slice(0,1).map(point =>
-      <div id = "fifteenGrid">
-        {/*Display the fifteen header if there are 15s*/}
-        {point !== null ? <p className = "pointHeader">Fifteens</p> : []}
-          <div id = "pointContainer">
-          {/*If there are fifteens, it displays a div with the cards and the points allocated*/}
-          {point !== null ? point.map(j =>
-            <div id = "fifteenPoints">
-              <div className = "cardsResponible">{j[0]}</div> {/*The cards in the fifteen*/}
-              <div>{j[1]}</div> {/*The points from the fifteen*/}
-            </div>) : []}
-          </div>
-      </div>
-    )
-    const pointTitles = ["Runs","Flush","Pairs","Heels and Nobs"]; //Headers for points
-    //Iterates through the rest
-    const pointDisplay = this.props.points.slice(1,this.props.points.length).map((nested,index) =>
-      <div id = "pointGrid">
-        {/*Displays headers if necessary */}
-        {nested !== null ? <p className = "pointHeader">{pointTitles[index]}</p> : []}
-        <div id = 'pointContainer'>
-          <div id = "remainderPoints">
-            {/*Iterates through cards responsible and displays*/}
-            {nested !== null ? nested.slice(0,nested.length - 1).map(i =>
-              <div className = "cardsResponible">{i}</div>) : []} {/*Cards in point allocation*/}
-              <div>
-                {nested !== null ? nested[1] : []} {/*points*/}
-              </div>
-          </div>
-        </div>
-      </div>
-    )
     return (
       <div id = "pointDisplayWrapper">
         <div id = "pointDisplay">
@@ -477,8 +482,7 @@ class Results extends Component {
             <div id ="scoreModal">Score: {this.props.score}</div>
           </div>
           <div id = "pointDisplayContent">
-            {fifteenDisplay}
-            {pointDisplay}
+            <this.PointDisplay/>
           </div>
         </div>
       </div>

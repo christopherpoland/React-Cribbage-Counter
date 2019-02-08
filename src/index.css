@@ -256,16 +256,12 @@ code {
   grid-template-columns: repeat(auto-fill, minmax(100px,150px));
   justify-items: center;
 }
-#fifteenGrid, #pointGrid {
+#pointWrapper {
   display: flex;
   flex-direction: column;
   flex-basis: auto;
 }
-#pointContainer {
-  display: grid;
-  grid-template-row: repeat(auto-fit, 1fr));
-}
-#fifteenPoints, #remainderPoints {
+#pointsCards {
   display: flex;
   flex-direction: row;
   flex-basis: auto;
