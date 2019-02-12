@@ -370,6 +370,10 @@ class Cards extends Component {
   }
 
   render() {
+    const cardOutline = [...Array(5).keys()].map(i =>
+    <div id = "cardOutline" key = {"outline" + i}>
+      {i === 4 ? <div>Flip Card</div> : null}
+    </div>)
     const cardDisplay = this.props.cards.map(i =>
     <div key = {"cardWrapperInside" + i}  id = "cardWrapperInside">
       <div className = "cardDisplay" id = {i[1]+"top"} key = {i}>
@@ -386,8 +390,13 @@ class Cards extends Component {
 )
 
     return (
-      <div id = "cardWrapper">
-        {cardDisplay}
+      <div id = "cardDisplayOutlineWrapper">
+        <div id = "cardOutlineWrapper">
+          {cardOutline}
+        </div>
+        <div id = "cardWrapper">
+          {cardDisplay}
+        </div>
       </div>
     );
   }
@@ -451,9 +460,12 @@ class Results extends Component {
   this.closeModal = this.closeModal.bind(this);
   this.PointDisplay = this.PointDisplay.bind(this);
   }
-  closeModal () {
-    document.getElementById("pointDisplayWrapper").style.display = "none";
-    console.log(this.props.points.slice(2,3))
+  closeModal (event) {
+    const modalVar = document.getElementById("pointDisplayWrapper");
+    const closeModal = document.getElementById("modalX");
+    if (event.target === modalVar || event.target === closeModal) {
+      modalVar.style.display = "none";
+    }
   }
   PointDisplay () {
     //const fifteenPairTitles = ["Fifteens","Pairs"]; //Headers for points
@@ -479,8 +491,8 @@ class Results extends Component {
   }
   render() {
     return (
-      <div id = "pointDisplayWrapper">
-        <div id = "pointDisplay">
+      <div id = "pointDisplayWrapper" onClick={this.closeModal}>
+        <div id = "modalDisplay">
           <div id = "closeModal" onClick={this.closeModal}>
             <i id = "modalX" className="material-icons">close</i>
           </div>
