@@ -3,7 +3,9 @@ body {
   height: 100vh;
   padding: 1em;
   --theme-blue: #afceff;
+  --accent-font: 'Roboto', sans-serif;
   background-color: var(--theme-blue);
+  --border-radius-cards: 4px;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
     "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
@@ -34,7 +36,6 @@ code {
 }
 #cardDisplayOutlineWrapper {
   display: grid;
-  --border-radius-cards: 4px;
 }
 #cardWrapper {
   display: grid;
@@ -118,19 +119,11 @@ code {
   display: grid;
   background-color: rgba(206, 215, 229, 0.8);
 }
-#inputWrapper {
-  display: grid;
-  grid-template-rows: 1fr 3fr;
-}
-#formWrapper {
-  text-align: center;
-}
-#formWrapper form {
-
-}
 #score {
+  align-self: center;
   text-align: center;
   font-size: 10vh;
+  font-family: var(--accent-font);
 }
 .buttonWrapper {
   display: grid;
@@ -174,6 +167,106 @@ code {
 .buttons:hover, #reset:hover {
   color: grey;
 }
+#pointDisplayWrapper {
+  display: none;
+  align-items: center;
+  justify-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  z-index: 1010;
+  background-color: rgba(100,100,100,0.8);
+}
+#modalWrapper {
+  display: grid;
+  grid-template-rows: 40px auto;
+  height: 83vh;
+  width: 83%;
+  max-width: 700px;
+}
+#closeModal {
+  display: grid;
+  justify-items: end;
+  align-items: center;
+  background-color: red;
+  border-top-left-radius: var(--border-radius-cards);
+  border-top-right-radius: var(--border-radius-cards);
+}
+#modalX {
+  margin: 0.3em;
+}
+#modalDisplay {
+  background-color: #c4d5f2;
+  overflow: scroll;
+  border-bottom-left-radius: var(--border-radius-cards);
+  border-bottom-right-radius: var(--border-radius-cards);
+}
+#modalTopWrapper {
+  display: grid;
+  grid-template-columns: auto auto;
+  max-width: 500px;
+  margin: auto;
+  padding: 0.5em 0 1em 1em;
+}
+#scoreModal {
+  justify-self: start;
+  align-self: center;
+  font-size: 10vh;
+  font-family: var(--accent-font);
+}
+#modalFormWrapper {
+  justify-self: start;
+  align-self: center;
+}
+#modalFormWrapper form {
+  display: grid;
+  grid-template-rows: 1fr 1fr 1fr;
+  font-size: 3vh;
+  font-family: var(--accent-font);
+}
+#modalFormWrapper form input {
+  height: 3vh;
+  margin-bottom: 0;
+}
+.labelText {
+  align-self: center;
+}
+#pointDisplayContent {
+  display: grid;
+  grid-row-gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(100px,250px));
+  justify-content: center;
+  margin-bottom: 0.75em;
+  font-size: 1.5em;
+}
+#pointWrapper {
+  display: flex;
+  flex-direction: column;
+  flex-basis: auto;
+  align-items: center;
+  border-left: 2px solid red;
+  border-right: 2px solid red;
+  margin-left: -2px;
+}
+#pointsCards {
+  display: flex;
+  flex-direction: row;
+}
+.pointHeader {
+  text-align: center;
+  margin: 0em 0 0.25em 0;
+  font-size: 1.75em;
+  font-family: var(--accent-font);
+}
+.cardsResponible {
+  padding-right: 0.5em;
+}
+.pointTotal {
+  align-self: center;
+  transform: translateY(-0.5px);
+}
 @media (max-width: 500px) { /* Used with small viewport widths */
   body {
     padding: 0.5em;
@@ -181,7 +274,7 @@ code {
   .fullWrapper {
     height: 100vh;
     display: grid;
-    grid-template-rows: 1.5fr 2fr 5fr 0.5fr;
+    grid-template-rows: 1.5fr 1.5fr 5fr 0.5fr;
   }
   .cardDisplay {
     grid-template-rows: 1fr;
@@ -207,102 +300,82 @@ code {
     width: 10vh;
     margin-bottom: 0;
   }
-  #inputWrapper {
-    display: grid;
-    grid-template-columns: 1fr 1.75fr;
-    grid-template-rows: 1fr;
-    align-items: center;
-  }
-  #formWrapper {
-    display: grid;
-    justify-items: center;
-  }
-  #formWrapper form {
-    display: grid;
-    grid-template-rows: 1fr 1fr 1fr;
-    text-align: left;
-    font-size: 5vh;
-  }
   #score {
-    text-align: left;
+    text-align: center;
     font-size: 10vh;
   }
-}
-#pointDisplayWrapper {
-  display: none;
-  align-items: center;
-  justify-items: center;
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 100%;
-  z-index: 1010;
-  background-color: rgba(100,100,100,0.8);
-}
-#modalDisplay {
-  max-width: 700px;
-  height: 80%;
-  width: 80%;
-  background-color: white;
-  grid-row-gap: 0.5em;
-}
-#closeModal {
-  display: grid;
-  height: 28px;
-  justify-items: end;
-  align-items: center;
-  background-color: red;
-  padding: 0.3em;
-}
-#modalTopWrapper {
-  display: grid;
-  grid-template-columns: auto auto;
-  max-width: 500px;
-  margin: auto;
-}
-#scoreModal {
-  justify-self: start;
-  align-self: center;
-  font-size: 10vh;
-}
-#modalFormWrapper {
-  justify-self: start;
-  align-self: center;
-}
-#modalFormWrapper form {
-  display: grid;
-  grid-template-rows: 1fr 1fr 1fr;
-}
-#pointDisplayContent {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(100px,180px));
-  justify-content: center;
-}
-#pointWrapper {
-  display: flex;
-  flex-direction: column;
-  flex-basis: auto;
-  align-items: center;
-}
-#pointsCards {
-  display: flex;
-  flex-direction: row;
-  flex-basis: auto;
-}
-.pointHeader {
-  text-align: center;
-  margin: 1em 0 0.5em 0;
-}
-.cardsResponible {
-  padding-right: 0.5em;
-}
-
-@media (min-height: 520px) and (max-width: 500px) {
-  #score {
-    font-size: 7vh;
-  }
-  #formWrapper form {
+  #modalFormWrapper form {
     font-size: 3.5vh;
+  }
+  #modalFormWrapper form input {
+    height: 3.5vh;
+  }
+  #pointDisplayContent {
+    grid-template-columns: repeat(auto-fit, minmax(100px,250px));
+    font-size: 1.5em;
+  }
+}
+@media (min-height: 520px) and (max-width: 500px) { /* Tall and skinny viewports (Portrait) */
+  #score {
+    font-size: 12vh;
+  }
+  #scoreModal {
+    font-size: 2.5em;
+  }
+  #modalFormWrapper form {
+    font-size: 1.5em;
+  }
+  #modalFormWrapper form input {
+    height: 1.5em;
+  }
+  #pointDisplayContent {
+    grid-template-columns: repeat(auto-fit, minmax(100px,250px));
+    font-size: 1.5em;
+  }
+}
+@media (max-height: 520px) and (min-width: 500px) { /* Wide and short viewports (Landscape) */
+  #topLeft {
+    font-size: 1em;
+  }
+  #middleSuit {
+    font-size: 2.5em;
+  }
+  #bottomRight {
+    font-size: 1em;
+  }
+  #modalFormWrapper form {
+    font-size: 1.5em;
+  }
+  #modalFormWrapper form input {
+    height: 1.5em;
+  }
+  #scoreModal {
+    font-size: 3.5em;
+  }
+  .pointHeader {
+    font-size: 1.5em;
+  }
+  #pointDisplayContent {
+    grid-template-columns: repeat(auto-fit, minmax(100px,250px));
+    font-size: 1.25em;
+  }
+
+}
+@media (max-height: 520px) and (max-width: 500px) { /* Short and skinny viewports */
+  #modalFormWrapper form {
+    font-size: 1.5em;
+  }
+  #modalFormWrapper form input {
+    height: 1.5em;
+  }
+  #scoreModal {
+    font-size: 2.5em;
+  }
+  .pointHeader {
+    font-size: 1.5em;
+  }
+  #pointDisplayContent {
+    grid-template-columns: repeat(auto-fit, minmax(100px,250px));
+    font-size: 1.25em;
   }
 }

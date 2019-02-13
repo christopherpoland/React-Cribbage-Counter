@@ -16,6 +16,7 @@ class App extends Component {
     this.handleColors = this.handleColors.bind(this);
     this.handleRadio = this.handleRadio.bind(this);
     this.scoreCrib = this.scoreCrib.bind(this);
+    this.displayModal = this.displayModal.bind(this);
     this.pairCounter = this.pairCounter.bind(this);
     this.flushCounter = this.flushCounter.bind(this);
     this.flushSorter = this.flushSorter.bind(this);
@@ -51,7 +52,7 @@ class App extends Component {
   componentDidUpdate() {
     if (this.state.cards.length === 5) {
       this.scoreCrib(this.state.cards);
-      document.getElementById("pointDisplayWrapper").style.display = "grid";
+      this.displayModal();
 
     }
     if (this.state.cards.length < 5 && this.state.score > 0) {
@@ -98,6 +99,9 @@ class App extends Component {
       score: this.pairCounter(input, 2)[0] + this.flushCounter(input)[0] + this.heelNob(input)[0] + this.runCounter(input)[0] + this.fifteenCounter(input,2)[0],
       points: [this.fifteenCounter(input, 2), this.pairCounter(input, 2), this.runCounter(input), this.flushCounter(input), this.heelNob(input)   ]
     });
+  }
+  displayModal () {
+    document.getElementById("pointDisplayWrapper").style.display = "grid";
   }
   fifteenCounter (input, increment) {
     var nums = [];
@@ -318,10 +322,7 @@ class App extends Component {
     return (
       <div className="fullWrapper">
         <Cards cards = {this.state.cards} handleRemove = {this.handleRemove}/>
-        <div id = "inputWrapper">
-          <HandType handleClick = {this.handleRadio} selectedRadio = {this.state.selectedRadio} id = "formWrapper"/>
-          <div id ="score">Score: {this.state.score}</div>
-        </div>
+          <div id ="score" onClick = {this.state.cards.length === 5 ? this.displayModal : undefined}>Score: {this.state.score}</div>
         <div className="buttonWrapper">
           <CardSuits labels = {this.props.suits} handleClick = {this.handleClickTop} suit = {this.state.suit} cards = {this.state.cards}/>
           <CardNumbers labels = {this.props.numbers} handleClick = {this.handleClickTop} number = {this.state.number} cards = {this.state.cards} reset = {this.handleReset}/>
@@ -483,7 +484,7 @@ class Results extends Component {
             {(point !== null && (point[2] !== "Fifteens" && point[2] !== "Pairs")) &&
               <div id = "pointsCards">
                 <div className = "cardsResponible">{point[1]}</div> {/*The cards in the fifteen*/}
-                <div>{point[0]}</div>
+                <div className = "pointTotal">{point[0]}</div>
               </div>}
         </div>
       )
@@ -492,16 +493,18 @@ class Results extends Component {
   render() {
     return (
       <div id = "pointDisplayWrapper" onClick={this.closeModal}>
-        <div id = "modalDisplay">
+        <div id = "modalWrapper">
           <div id = "closeModal" onClick={this.closeModal}>
             <i id = "modalX" className="material-icons">close</i>
           </div>
-          <div id = "modalTopWrapper">
-            <HandType handleClick = {this.props.handleRadio} selectedRadio = {this.props.selectedRadio} id = "modalFormWrapper"/>
-            <div id ="scoreModal">Score: {this.props.score}</div>
-          </div>
-          <div id = "pointDisplayContent">
-            <this.PointDisplay/>
+          <div id = "modalDisplay">
+            <div id = "modalTopWrapper">
+              <HandType handleClick = {this.props.handleRadio} selectedRadio = {this.props.selectedRadio} id = "modalFormWrapper"/>
+              <div id ="scoreModal">Score: {this.props.score}</div>
+            </div>
+            <div id = "pointDisplayContent">
+              <this.PointDisplay/>
+            </div>
           </div>
         </div>
       </div>
