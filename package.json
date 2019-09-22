@@ -2,7 +2,7 @@
   "name": "cribbage",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://christopherpoland.github.io/React-Cribbage-Counter/",
+  "homepage": "https://christopherpoland.github.io/React-Cribbage-Counter/public",
   "dependencies": {
     "gh-pages": "^2.1.1",
     "react": "^16.7.0",
