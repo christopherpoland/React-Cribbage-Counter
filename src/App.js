@@ -25,7 +25,6 @@ class App extends Component {
     this.handleReset = this.handleReset.bind(this);
     this.handleClickTop = this.handleClickTop.bind(this);
     this.handleRemove = this.handleRemove.bind(this);
-    this.debug = this.debug.bind(this);
   }
   shouldComponentUpdate (nextProps,nextState) {
     for (var i = 0; i < this.state.cards.length; i++) {
@@ -311,12 +310,6 @@ class App extends Component {
       }
     }
   }
-  debug () {
-    this.setState({
-      //cards: [["5","♣"],["10","♣"],["5","♦"],["10","♥"],["5","♥"]]
-      cards: [["10","♣"],["9","♣"],["Q","♣"],["J","♣"],["K","♣"]]
-    })
-  }
   render() {
 
     return (
@@ -326,7 +319,6 @@ class App extends Component {
         <div className="buttonWrapper">
           <CardSuits labels = {this.props.suits} handleClick = {this.handleClickTop} suit = {this.state.suit} cards = {this.state.cards}/>
           <CardNumbers labels = {this.props.numbers} handleClick = {this.handleClickTop} number = {this.state.number} cards = {this.state.cards} reset = {this.handleReset}/>
-          <div id = "debug" onClick = {this.debug}> :) </div>
         </div>
         <Results points = {this.state.points} score = {this.state.score} handleRadio = {this.handleRadio} selectedRadio = {this.state.selectedRadio}/>
       </div>
